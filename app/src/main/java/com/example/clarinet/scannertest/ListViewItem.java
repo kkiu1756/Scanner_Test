@@ -12,6 +12,7 @@ public class ListViewItem implements Serializable{
     private String price;
     private String weight;
     private String realWeight;
+    private String count;
 
     public void setBar(String barcode) {
         bar = barcode;
@@ -29,6 +30,7 @@ public class ListViewItem implements Serializable{
     {
         this.realWeight=realWeight;
     }
+    public void setCount(String count){ this.count=count;}
 
     public String getBar() {
         return this.bar ;
@@ -46,5 +48,6 @@ public class ListViewItem implements Serializable{
     {
         return this.realWeight;
     }
+    public String getCount() { return this.count;}
 
 }

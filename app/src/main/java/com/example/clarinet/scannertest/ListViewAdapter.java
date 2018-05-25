@@ -53,7 +53,8 @@ public class ListViewAdapter extends BaseAdapter implements Serializable {
         barcodeTextView.setText(listViewItem.getBar());
         nameTextView.setText(listViewItem.getName());
         priceTextView.setText(listViewItem.getPrice());
-        weightTextView.setText(listViewItem.getWeight());
+        //weightTextView.setText(listViewItem.getWeight());
+        weightTextView.setText(listViewItem.getCount());
 
         return convertView;
     }
@@ -103,7 +104,7 @@ public class ListViewAdapter extends BaseAdapter implements Serializable {
         for(int i=0;i<listViewItemList.size();i++)
         {
             ListViewItem listViewItem=listViewItemList.get(i);
-            sum+=Integer.parseInt(listViewItem.getPrice());
+            sum+=Integer.parseInt(listViewItem.getPrice())*Integer.parseInt(listViewItem.getCount());
         }
         return sum;
     }

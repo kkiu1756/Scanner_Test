@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
+
 import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
 import com.estimote.coresdk.observation.region.beacon.BeaconRegion;
 import com.estimote.coresdk.recognition.packets.Beacon;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+
 /**
  * This sample performs continuous scanning, displaying the barcode and source image whenever
  * a barcode is scanned.
@@ -52,13 +54,15 @@ public class MainActivity extends Activity {
     private String lastText;
     private String lastWeight;
     private float totalWeight=0;
+    private int totalPrice=0;
     private int totalList=0;
 
-    private String myIp="10.1.215.120";
+    private String myIp="192.168.219.103";
     private String inUrl="http://"+myIp+":4321/jdbc_test/WebContent/test/android_customer_insert.jsp";
     private String delUrl="http://"+myIp+":4321/jdbc_test/WebContent/test/android_customer_delete.jsp";
     private String clrUrl="http://"+myIp+":4321/jdbc_test/WebContent/test/android_customer_clear.jsp";
-    private InsertAndDelete inDel=new InsertAndDelete(inUrl,delUrl,clrUrl); // jjh
+    private String upUrl="http://"+myIp+":4321/jdbc_test/WebContent/test/android_customer_update.jsp";
+    private InsertAndDelete inDel=new InsertAndDelete(inUrl,delUrl,clrUrl,upUrl); // jjh
 
     private int inOrDel;
 
@@ -67,6 +71,7 @@ public class MainActivity extends Activity {
 
     AlertDialog.Builder dialog;
     EditText etEdit;
+
 
     // 전체 무게 합산 텍스트 뷰
     TextView totalWei;
@@ -81,19 +86,20 @@ public class MainActivity extends Activity {
     private Intent payintent;
     private Intent mainIntent;
 
+    //test 05 24
+    private String count;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // beacon listener
         beaconManager = new BeaconManager(this);
         beaconManager.setRangingListener(new BeaconManager.BeaconRangingListener() {
             @Override
             public void onBeaconsDiscovered(BeaconRegion region, List<Beacon> list) {
-
+                Log.e("tag"," ");
                 if (!list.isEmpty()) {
-
                     payintent=new Intent(MainActivity.this,KakaoActivity.class);
                     payintent.putExtra("payPrice",listAdapter.getPrice());
 
@@ -120,6 +126,7 @@ public class MainActivity extends Activity {
 
         mainIntent=getIntent();
 
+        /*
         //payButton
         payButton=findViewById(R.id.payButton);
 
@@ -135,7 +142,7 @@ public class MainActivity extends Activity {
                 startActivityForResult(payintent,1);
             }
         });
-
+        */
         //리스트 뷰 어댑터
         listAdapter = new ListViewAdapter();
         listView = (ListView) findViewById(R.id.list_preview);
@@ -164,9 +171,13 @@ public class MainActivity extends Activity {
                         inDel.Delete(listViewItem.getBar());
 
                         totalWeight-=Float.parseFloat(listViewItem.getWeight());
+                        //test 05 24
+                        totalPrice-=Integer.parseInt(listViewItem.getPrice());
+
                         totalList--;
                         //전체 무게, 상품수 텍스트 뷰에 출력
-                        totalWei.setText("총 무게 : "+(int) totalWeight);
+                        //totalWei.setText("총 무게 : "+(int) totalWeight);
+                        totalWei.setText("총   계 : "+(int) totalPrice);
                         totallist.setText("상품 수 : "+(int)totalList);
                     }
                 };
@@ -216,6 +227,9 @@ public class MainActivity extends Activity {
 
                 //Added preview of scanned barcode
                 // 무게 입력 다이얼로그
+
+                inDel.Insert(lastText);
+                /*
                 etEdit = new EditText(MainActivity.this);
                 dialog = new AlertDialog.Builder(MainActivity.this);
                 dialog.setTitle("카트에 물건을 담아주세요.");
@@ -232,6 +246,7 @@ public class MainActivity extends Activity {
                         }
                         catch(Exception e) {}
 
+                        //Log.e("test",listAdapter.getCount()+" ");
                         if(Float.parseFloat(lastWeight) > 0){
                             //전체 무게,상품수 추가
                             totalWeight+=Float.parseFloat(lastWeight);
@@ -247,7 +262,8 @@ public class MainActivity extends Activity {
                         }
                     }
                 });
-                dialog.show();
+                dialog.show();*/
+
 
                 /*ImageView imageView = (ImageView) findViewById(R.id.barcodePreview);
                 imageView.setImageBitmap(result.getBitmapWithResultPoints(Color.YELLOW));*/
@@ -283,6 +299,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
+
         beaconManager.stopRanging(region);
 
         super.onPause();
@@ -306,35 +323,104 @@ public class MainActivity extends Activity {
             String result = null;
             RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection();
             result = requestHttpURLConnection.request(url, values);
+
             return result;
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-
             //doInBackground()
             //tv_outPut.setText(s);
 
+
             if(inOrDel==1)
             {
+                if(s=="")
+                    Toast.makeText(MainActivity.this, "존재 하지 않는 상품입니다.", Toast.LENGTH_SHORT).show();
+
                 try{
                     JSONObject jsonObject= new JSONObject(s);
-                    String barcode=(String)jsonObject.get("barcode");
+                    final String barcode=(String)jsonObject.get("barcode");
                     String name=(String)jsonObject.get("name");
-                    String price = (String)jsonObject.get("price");
+                    final String price = (String)jsonObject.get("price");
                     String weight = (String)jsonObject.get("weight");
                     listAdapter.addItem(barcode, name, price, weight);
+                    //listAdapter.notifyDataSetChanged();
+                    Log.e("inserttest", s+"");
+
+                    // 바코드 입력 이벤트
+                    etEdit = new EditText(MainActivity.this);
+                    dialog = new AlertDialog.Builder(MainActivity.this);
+                    dialog.setTitle("카트에 물건을 담아주세요.");
+                    dialog.setView(etEdit);
+                    //test 05 24
+                    dialog.setCancelable(false);
+                    // OK 버튼 이벤트
+                    dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            lastWeight = etEdit.getText().toString();
+
+                            //inDel.Insert(lastText);
+                            //test
+                            try{
+
+                            }
+                            catch(Exception e) {}
+
+                            Log.e("test",listAdapter.getCount()+" ");
+                            if(Float.parseFloat(lastWeight) > 0){
+                                //전체 무게,상품수 추가
+                                totalWeight+=Float.parseFloat(lastWeight);
+                                totalPrice+=Integer.parseInt(price)*Integer.parseInt(listAdapter.getInfo(listAdapter.getCount()-1).getCount());
+                                totalList++;
+                                //전체 무게, 상품수 텍스트 뷰에 출력
+                                //totalWei.setText("총 무게 : "+(int) totalWeight);
+                                totalWei.setText("총   계 : "+(int) totalPrice);
+                                totallist.setText("상품 종류 : "+(int)totalList);
+
+
+                            }else{
+                                // 바코드만 찍고 무게가 늘어나지 않을때
+                                Toast.makeText(MainActivity.this, "바코드 재입력후 물건을 넣어주세요.",Toast.LENGTH_SHORT).show();
+                                lastText = null;
+
+                                listAdapter.removeItem(listAdapter.getCount()-1);
+                                inDel.Delete(barcode);
+                            }
+                        }
+                    });
+                    dialog.show();
+
+                    // 수량 입력 이벤트 05 24
+                    etEdit = new EditText(MainActivity.this);
+                    dialog = new AlertDialog.Builder(MainActivity.this);
+                    dialog.setTitle("수량을 입력해 주세요.");
+                    dialog.setView(etEdit);
+                    //test 05 24
+                    dialog.setCancelable(false);
+                    // OK 버튼 이벤트
+                    dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            count=etEdit.getText().toString();
+                            inDel.Update(barcode,etEdit.getText().toString());
+
+                            listAdapter.getInfo(listAdapter.getCount()-1).setCount(count);
+
+                        }
+                    });
+                    dialog.show();
+
                     listAdapter.notifyDataSetChanged();
                 }
                 catch(Exception e){
 
                 }
             }
-           if(inOrDel==0)
-           {
-               
-           }
+            if(inOrDel==0)
+            {
+
+            }
 
 
         }
@@ -345,16 +431,18 @@ public class MainActivity extends Activity {
         public String InsertUrl;
         public String DeleteUrl;
         public String ClearUrl;
+        public String UpdateUrl;
         public JSONArray result1=null;
 
         private NetworkTask networkTask;
         final ContentValues contentValues=new ContentValues();
 
-        InsertAndDelete(String InsertUrl,String DeleteUrl,String ClearUrl){
+        InsertAndDelete(String InsertUrl,String DeleteUrl,String ClearUrl,String UpdateUrl){
 
             this.InsertUrl=InsertUrl;
             this.DeleteUrl=DeleteUrl;
             this.ClearUrl=ClearUrl;
+            this.UpdateUrl=UpdateUrl;
         }
         public void Insert(String barcode){
 
@@ -385,6 +473,21 @@ public class MainActivity extends Activity {
 
             networkTask=new NetworkTask(ClearUrl,contentValues);
             networkTask.execute();
+        }
+
+        public void Update(String barcode,String count){
+
+            if(barcode!=null) {
+                contentValues.put("barcode", barcode);
+                contentValues.put("count", count);
+
+                inOrDel=0;
+
+                networkTask = new NetworkTask(UpdateUrl, contentValues);
+                networkTask.execute();
+
+            }
+
         }
 
         public JSONArray getResult(){

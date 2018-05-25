@@ -71,7 +71,7 @@ public class TakeBillList extends AppCompatActivity {
         for(int i=0;i<listViewAdapter.getCount();i++)
         {
             listViewItem=listViewAdapter.getInfo(i);
-            sum=+Integer.parseInt(listViewItem.getPrice());
+            sum+=Integer.parseInt(listViewItem.getPrice())*Integer.parseInt(listViewItem.getCount());
             Item1.add(new ItemofBilllist(listViewItem.getName(),listViewItem.getPrice()));
         }
         // 예 // listViewAdapter 변환 필요
