@@ -57,11 +57,11 @@ public class MainActivity extends Activity {
     private int totalPrice=0;
     private int totalList=0;
 
-    private String myIp="192.168.219.103";
-    private String inUrl="http://"+myIp+":4321/jdbc_test/WebContent/test/android_customer_insert.jsp";
-    private String delUrl="http://"+myIp+":4321/jdbc_test/WebContent/test/android_customer_delete.jsp";
-    private String clrUrl="http://"+myIp+":4321/jdbc_test/WebContent/test/android_customer_clear.jsp";
-    private String upUrl="http://"+myIp+":4321/jdbc_test/WebContent/test/android_customer_update.jsp";
+    private String myIp="122.45.214.122";
+    private String inUrl="http://"+myIp+":13241/jdbc_test/WebContent/test/android_customer_insert.jsp";
+    private String delUrl="http://"+myIp+":13241/jdbc_test/WebContent/test/android_customer_delete.jsp";
+    private String clrUrl="http://"+myIp+":13241/jdbc_test/WebContent/test/android_customer_clear.jsp";
+    private String upUrl="http://"+myIp+":13241/jdbc_test/WebContent/test/android_customer_update.jsp";
     private InsertAndDelete inDel=new InsertAndDelete(inUrl,delUrl,clrUrl,upUrl); // jjh
 
     private int inOrDel;
