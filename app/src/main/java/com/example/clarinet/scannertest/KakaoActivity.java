@@ -26,7 +26,7 @@ public class KakaoActivity extends Activity {
         WebSettings settings = mainWebView.getSettings();
         settings.setJavaScriptEnabled(true);
 
-        mainWebView.loadUrl("http://192.168.219.103:4321//jdbc_test/WebContent/test/test_pay4.jsp?amount="+getIntent().getIntExtra("payPrice",1)); // 임시 서버 (카카오 페이)
+        mainWebView.loadUrl("http://122.45.214.122:13241//jdbc_test/WebContent/test/test_pay4.jsp?amount="+getIntent().getIntExtra("payPrice",1)); // 임시 서버 (카카오 페이)
 
         mainWebView.addJavascriptInterface(new AndroidBridge(), "android");
     }
